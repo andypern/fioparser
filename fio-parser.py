@@ -7,7 +7,7 @@ import traceback
 import re
 
 
-r"""
+"""
 Analyze fio output
 
 This is an attempt to work with both old FIO, as well as 'new' FIO. json output.
@@ -88,16 +88,25 @@ def main():
         if reMatch:
             output_hash[oFile]['globalOpts']['mntPerClient'] = reMatch.group(1)
             output_hash[oFile]['globalOpts']['threadPerClient'] = reMatch.group(2)
+        else:
+            meMatch = re.match(r".+\.([0-9]+)[m]\.([0-9]+)[t]\.", oFile)
+            if meMatch:
+                output_hash[oFile]['globalOpts']['mntPerClient'] = meMatch.group(1)
+                output_hash[oFile]['globalOpts']['threadPerClient'] = meMatch.group(2)
+
 
         #stuff we care about for now
 
-        jobs = output['jobs']
 
         output_hash[oFile]['version'] = output['fio version']
         if output['fio version'] in "fio-2.2.8":
             lat = "clat"
+            jobs = output['jobs']
+
         elif output['fio version'] in "fio-3.1":
             lat = "clat_ns"
+            jobs = output['client_stats']
+
 
         try:
             #
